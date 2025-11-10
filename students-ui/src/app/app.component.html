@@ -1,0 +1,25 @@
+<h2>{{ title }}</h2>
+
+<form (ngSubmit)="save()" #f="ngForm">
+  <input placeholder="Name" [(ngModel)]="form.name" name="name" required />
+  <input placeholder="Dept" [(ngModel)]="form.dept" name="dept" required />
+  <button type="submit">{{ editing ? 'Update' : 'Add' }}</button>
+  <button type="button" (click)="cancel()" *ngIf="editing">Cancel</button>
+</form>
+
+<hr />
+
+<table border="1" cellpadding="6">
+  <thead><tr><th>ID</th><th>Name</th><th>Dept</th><th>Actions</th></tr></thead>
+  <tbody>
+    <tr *ngFor="let s of students">
+      <td>{{ s.id }}</td>
+      <td>{{ s.name }}</td>
+      <td>{{ s.dept }}</td>
+      <td>
+        <button (click)="edit(s)">Edit</button>
+        <button (click)="del(s.id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
