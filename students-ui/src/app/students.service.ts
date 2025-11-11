@@ -7,7 +7,7 @@ export interface Student { id: number; name: string; dept: string; }
 @Injectable({ providedIn: 'root' })
 export class StudentsService {
   // Change the port if your API runs on a different one
-  private base = 'https://localhost:7284/api/students';
+  private base = 'http://api:5000/api/students';
 
   constructor(private http: HttpClient) {}
 
