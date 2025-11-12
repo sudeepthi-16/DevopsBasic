@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DevopsBasic")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+69cf7cfecb38343a43174c90476fb8545960b971")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+89ecf75f583382ccc90a6e9d6dab88f4b612413f")]
 [assembly: System.Reflection.AssemblyProductAttribute("DevopsBasic")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DevopsBasic")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
