@@ -1,19 +1,22 @@
 pipeline {
-    agent any
-
-    environment {
-        BACKEND_DIR = 'DevopsBasic'
-        FRONTEND_DIR = 'students-ui'
-        DOTNET_TOOLS = "${env.USERPROFILE}\\.dotnet\\tools"
-    }
+    agent any  // means Jenkins can run this on any available agent (your local one)
 
     options {
-        timestamps()
+        timestamps()  // show timestamps in logs
+    }
+
+    environment {
+        // === Folder setup ===
+        BACKEND_DIR    = 'DevopsBasic'
+        FRONTEND_DIR   = 'students-ui'
+
+        // === Tool paths ===
+        DOTNET_TOOLS   = "${env.USERPROFILE}\\.dotnet\\tools"  // where trx2junit lives
     }
 
     stages {
 
-        // 1️⃣ CHECKOUT CODE
+        // 1️⃣ --- Checkout code from GitHub ---
         stage('Checkout Code') {
             steps {
                 echo "Pulling latest code from GitHub..."
@@ -21,61 +24,56 @@ pipeline {
             }
         }
 
-        // 2️⃣ BUILD BACKEND
+        // 2️⃣ --- Build the .NET Backend ---
         stage('Build Backend (.NET)') {
             steps {
                 dir("${BACKEND_DIR}") {
-                    echo "Restoring and building backend..."
+                    echo "Building backend project..."
                     bat 'dotnet restore'
                     bat 'dotnet build --configuration Release --no-restore'
                 }
             }
         }
 
-        // 3️⃣ TEST BACKEND
+        // 3️⃣ --- Run Backend Tests (.NET) ---
         stage('Test Backend (.NET)') {
             steps {
                 dir("${BACKEND_DIR}") {
-                    echo "Running backend tests from DevopsBasic.sln..."
+                    echo "Running .NET tests..."
                     bat 'if not exist TestResults mkdir TestResults'
-                    // Run tests on the solution file
-                    bat 'dotnet test DevopsBasic.sln --configuration Release --logger "trx;LogFileName=TestResults\\testresults.trx" || exit /b 0'
+                    bat 'dotnet test --configuration Release --no-build --logger "trx;LogFileName=testresults.trx" || exit /b 0'
 
-                    // Convert TRX -> JUnit XML
+                    // Convert TRX → JUnit XML
                     withEnv(["PATH=${DOTNET_TOOLS};${env.PATH}"]) {
-                        bat 'for /R %i in (TestResults\\*.trx) do trx2junit "%i" || echo No TRX files found, skipping conversion.'
+                        bat 'for /R %i in (*.trx) do trx2junit "%i"'
                     }
-
-                    // List the results
-                    bat 'dir TestResults'
                 }
             }
             post {
                 always {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        junit allowEmptyResults: true, testResults: "${BACKEND_DIR}/TestResults/*.xml"
-                        archiveArtifacts artifacts: "${BACKEND_DIR}/TestResults/*.*", allowEmptyArchive: true
-                    }
+                    // Publish test results to Jenkins
+                    junit allowEmptyResults: true, testResults: "${BACKEND_DIR}/**/testresults*.xml"
+                    archiveArtifacts artifacts: "${BACKEND_DIR}/**/TestResults/*.*", allowEmptyArchive: true
                 }
             }
         }
 
-        // 4️⃣ BUILD FRONTEND (ANGULAR)
+        // 4️⃣ --- Install & Build Frontend (Angular) ---
         stage('Build Frontend (Angular)') {
             steps {
                 dir("${FRONTEND_DIR}") {
-                    echo "Installing frontend dependencies and building..."
+                    echo "Installing dependencies and building frontend..."
                     bat 'npm ci'
                     bat 'npm run build --if-present'
                 }
             }
         }
 
-        // 5️⃣ TEST FRONTEND (ANGULAR)
+        // 5️⃣ --- Run Frontend Tests (Angular) ---
         stage('Test Frontend (Angular)') {
             steps {
                 dir("${FRONTEND_DIR}") {
-                    echo "Running Angular unit tests..."
+                    echo "Running Angular tests..."
                     bat 'npm test || exit /b 0'
                 }
             }
@@ -87,28 +85,28 @@ pipeline {
             }
         }
 
-        // 6️⃣ BUILD DOCKER IMAGES
+        // 6️⃣ --- Optional: Build Docker Images ---
         stage('Build Docker Images (Optional)') {
             steps {
-                echo "Building Docker images..."
-                bat 'docker compose build || echo Docker build skipped.'
+                echo "Building Docker images (optional step)..."
+                bat 'docker compose build'
             }
         }
 
-        // 7️⃣ SUMMARY
+        // 7️⃣ --- Wrap Up ---
         stage('Summary') {
             steps {
-                echo "✅ Build and test pipeline completed successfully."
+                echo "✅ All stages completed. Check the 'Test Result' tab for test summaries."
             }
         }
     }
 
     post {
         success {
-            echo "🎉 Jenkins pipeline finished successfully!"
+            echo "🎉 Pipeline finished successfully!"
         }
         failure {
-            echo "❌ Pipeline failed. Check console output for details."
+            echo "❌ Pipeline failed. Check the console output and test reports for details."
         }
     }
 }
