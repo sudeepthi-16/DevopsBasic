@@ -1,110 +1,179 @@
 pipeline {
-    agent any  // means Jenkins can run this on any available agent (your local one)
+  agent any
 
-    options {
-        timestamps()  // show timestamps in logs
+  options {
+    timestamps()
+    ansiColor('xterm') // optional: nicer console colors if plugin present
+  }
+
+  environment {
+    // folders (relative to repo root)
+    BACKEND_DIR     = 'DevopsBasic'            // contains DevopsBasic.sln (adjust if necessary)
+    TEST_PROJECT_DIR= 'DevopsBasic.Tests'      // test project folder (adjust if necessary)
+    FRONTEND_DIR    = 'students-ui'
+
+    // test results directory at repo root (single place for all test outputs)
+    TEST_RESULTS_DIR = 'TestResults'
+
+    // dotnet global tool locations (will be used for trx2junit)
+    DOTNET_TOOLS_UNIX = "${env.HOME}/.dotnet/tools"
+    DOTNET_TOOLS_WIN  = "%USERPROFILE%\\.dotnet\\tools"
+    CONFIGURATION = "Release"
+  }
+
+  stages {
+
+    stage('Checkout Code') {
+      steps {
+        echo "Checking out repository..."
+        checkout scm
+        echo "Workspace: ${env.WORKSPACE}"
+      }
     }
 
-    environment {
-        // === Folder setup ===
-        BACKEND_DIR    = 'DevopsBasic'      // .NET backend folder
-        FRONTEND_DIR   = 'students-ui'      // Angular frontend folder
-
-        // === Tool paths ===
-        DOTNET_TOOLS   = "${env.USERPROFILE}\\.dotnet\\tools"  // where trx2junit lives
+    stage('Restore & Build (.NET)') {
+      steps {
+        echo "Restoring and building .NET solution..."
+        // restore/build from repo root to ensure solution references resolve
+        script {
+          if (isUnix()) {
+            sh "dotnet restore"
+            sh "dotnet build -c ${CONFIGURATION} --no-restore"
+          } else {
+            bat "dotnet restore"
+            bat "dotnet build -c ${CONFIGURATION} --no-restore"
+          }
+        }
+      }
     }
 
-    stages {
-
-        // 1️⃣ --- Checkout code from GitHub ---
-        stage('Checkout Code') {
-            steps {
-                echo "Pulling latest code from GitHub..."
-                git branch: 'main', url: 'https://github.com/sudeepthi-16/DevopsBasic.git'
-            }
+    stage('Run Backend Tests (.NET)') {
+      steps {
+        echo "Running backend tests and collecting results..."
+        script {
+          // ensure test results dir exists at repo root
+          if (isUnix()) {
+            sh "mkdir -p ${TEST_RESULTS_DIR}"
+            // run the test project explicitly — safer than running entire solution
+            sh "dotnet test ${TEST_PROJECT_DIR} -c ${CONFIGURATION} --no-build --logger \"trx;LogFileName=backend.trx\" --results-directory ${TEST_RESULTS_DIR} || true"
+            // convert any TRX -> JUnit (install tracer tool if necessary)
+            sh '''
+              dotnet tool install -g trx2junit || true
+              export PATH="$PATH:${DOTNET_TOOLS_UNIX}"
+              for f in ${TEST_RESULTS_DIR}/*.trx; do
+                if [ -f "$f" ]; then
+                  trx2junit "$f" -o "${TEST_RESULTS_DIR}/$(basename "$f" .trx).xml" || true
+                fi
+              done
+            '''.stripIndent()
+          } else {
+            bat "if not exist ${TEST_RESULTS_DIR} mkdir ${TEST_RESULTS_DIR}"
+            bat "dotnet test ${TEST_PROJECT_DIR} -c ${CONFIGURATION} --no-build --logger \"trx;LogFileName=backend.trx\" --results-directory ${TEST_RESULTS_DIR} || exit /b 0"
+            bat """
+              dotnet tool install -g trx2junit || powershell -Command "Write-Host 'trx2junit may already be installed'"
+              set PATH=%PATH%;${DOTNET_TOOLS_WIN}
+              for %%F in (${TEST_RESULTS_DIR}\\*.trx) do (
+                if exist "%%F" (
+                  ${DOTNET_TOOLS_WIN}\\trx2junit.exe "%%F" -o "${TEST_RESULTS_DIR}\\%%~nF.xml" || echo convert failed for %%F
+                )
+              )
+            """
+          }
         }
-
-        // 2️⃣ --- Build the .NET Backend ---
-        stage('Build Backend (.NET)') {
-            steps {
-                echo "Building backend project..."
-                // Run from repo root, not inside DevopsBasic/
-                bat 'dotnet restore DevopsBasic/DevopsBasic.sln'
-                bat 'dotnet build DevopsBasic/DevopsBasic.sln --configuration Release --no-restore'
-            }
+      }
+      post {
+        always {
+          echo "Publishing backend test results & archiving test artifacts..."
+          // publish JUnit XMLs (converted) and archive anything in TestResults
+          junit allowEmptyResults: true, testResults: "${TEST_RESULTS_DIR}/*.xml"
+          archiveArtifacts artifacts: "${TEST_RESULTS_DIR}/**/*", allowEmptyArchive: true, fingerprint: true
         }
-
-        // 3️⃣ --- Run Backend Tests (.NET) ---
-        stage('Test Backend (.NET)') {
-            steps {
-                echo "Running .NET tests..."
-                // Work from repo root, so relative paths to test project resolve correctly
-                bat 'if not exist TestResults mkdir TestResults'
-                bat 'dotnet test DevopsBasic/DevopsBasic.sln --configuration Release --no-build --logger "trx;LogFileName=testresults.trx" || exit /b 0'
-
-                // Convert TRX → JUnit XML for Jenkins reporting
-                withEnv(["PATH=${DOTNET_TOOLS};${env.PATH}"]) {
-                    bat 'for /R %i in (*.trx) do trx2junit "%i"'
-                }
-            }
-            post {
-                always {
-                    // Publish test results to Jenkins
-                    junit allowEmptyResults: true, testResults: "TestResults/**/*.xml"
-                    archiveArtifacts artifacts: "TestResults/**/*.*", allowEmptyArchive: true
-                }
-            }
-        }
-
-        // 4️⃣ --- Install & Build Frontend (Angular) ---
-        stage('Build Frontend (Angular)') {
-            steps {
-                dir("${FRONTEND_DIR}") {
-                    echo "Installing dependencies and building frontend..."
-                    bat 'npm ci'
-                    bat 'npm run build --if-present'
-                }
-            }
-        }
-
-        // 5️⃣ --- Run Frontend Tests (Angular) ---
-        stage('Test Frontend (Angular)') {
-            steps {
-                dir("${FRONTEND_DIR}") {
-                    echo "Running Angular tests..."
-                    bat 'npm test || exit /b 0'
-                }
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: "${FRONTEND_DIR}/test-results/*.xml"
-                    archiveArtifacts artifacts: "${FRONTEND_DIR}/test-results/*.xml", allowEmptyArchive: true
-                }
-            }
-        }
-
-        // 6️⃣ --- Optional: Build Docker Images ---
-        stage('Build Docker Images (Optional)') {
-            steps {
-                echo "Building Docker images (optional step)..."
-                bat 'docker compose build'
-            }
-        }
-
-        // 7️⃣ --- Wrap Up ---
-        stage('Summary') {
-            steps {
-                echo "✅ All stages completed. Check the 'Test Result' tab for test summaries."
-            }
-        }
+      }
     }
 
-    post {
-        success {
-            echo "🎉 Pipeline finished successfully!"
+    stage('Build Frontend (Angular)') {
+      steps {
+        echo "Installing frontend dependencies and building frontend..."
+        dir("${FRONTEND_DIR}") {
+          script {
+            if (isUnix()) {
+              sh 'npm ci'
+              // create dist output with production build if script exists
+              sh 'npm run build --if-present'
+            } else {
+              bat 'npm ci'
+              bat 'npm run build --if-present'
+            }
+          }
         }
-        failure {
-            echo "❌ Pipeline failed. Check the console output and test reports for details."
-        }
+      }
     }
+
+    stage('Run Frontend Tests (Angular)') {
+      steps {
+        echo "Running frontend tests (Angular)..."
+        dir("${FRONTEND_DIR}") {
+          script {
+            // ensure frontend emits test results to students-ui/test-results/*.xml
+            // Note: your Angular project must be configured to output JUnit XML (e.g. karma-junit-reporter)
+            if (isUnix()) {
+              sh 'mkdir -p test-results || true'
+              // run tests in CI mode (no watch). If your package.json has a special CI test script use that.
+              // The trailing args (--watch=false) may or may not be used depending on your test runner.
+              sh 'npm test -- --watch=false || true'
+            } else {
+              bat 'if not exist test-results mkdir test-results'
+              bat 'npm test -- --watch=false || exit /b 0'
+            }
+          }
+        }
+      }
+      post {
+        always {
+          echo "Publishing frontend test results (if any) and archiving..."
+          // try to find JUnit xmls in students-ui/test-results
+          junit allowEmptyResults: true, testResults: "${FRONTEND_DIR}/test-results/*.xml"
+          archiveArtifacts artifacts: "${FRONTEND_DIR}/test-results/**/*.*", allowEmptyArchive: true
+        }
+      }
+    }
+
+    stage('Build Docker Images (Optional)') {
+      steps {
+        echo "Optional: building docker images via docker compose (if present)..."
+        script {
+          if (fileExists('docker-compose.yml')) {
+            if (isUnix()) {
+              sh 'docker compose build || true'
+            } else {
+              bat 'docker compose build || exit /b 0'
+            }
+          } else {
+            echo "No docker-compose.yml found — skipping docker build"
+          }
+        }
+      }
+    }
+
+    stage('Summary') {
+      steps {
+        echo "Pipeline finished. Check 'Tests' and 'Artifacts' tabs for results."
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "Pipeline succeeded ✅"
+    }
+    unstable {
+      echo "Pipeline unstable (some tests may have failed) ⚠️"
+    }
+    failure {
+      echo "Pipeline failed ❌"
+    }
+    always {
+      echo "Done. Build status: ${currentBuild.currentResult}"
+    }
+  }
 }
