@@ -3,7 +3,6 @@ pipeline {
 
   options {
     timestamps()
-    ansiColor('xterm') // optional: nicer console colors if plugin present
   }
 
   environment {
