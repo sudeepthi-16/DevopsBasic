@@ -7,8 +7,8 @@ pipeline {
 
     environment {
         // === Folder setup ===
-        BACKEND_DIR    = 'DevopsBasic'
-        FRONTEND_DIR   = 'students-ui'
+        BACKEND_DIR    = 'DevopsBasic'      // .NET backend folder
+        FRONTEND_DIR   = 'students-ui'      // Angular frontend folder
 
         // === Tool paths ===
         DOTNET_TOOLS   = "${env.USERPROFILE}\\.dotnet\\tools"  // where trx2junit lives
@@ -27,33 +27,31 @@ pipeline {
         // 2️⃣ --- Build the .NET Backend ---
         stage('Build Backend (.NET)') {
             steps {
-                dir("${BACKEND_DIR}") {
-                    echo "Building backend project..."
-                    bat 'dotnet restore'
-                    bat 'dotnet build --configuration Release --no-restore'
-                }
+                echo "Building backend project..."
+                // Run from repo root, not inside DevopsBasic/
+                bat 'dotnet restore DevopsBasic/DevopsBasic.sln'
+                bat 'dotnet build DevopsBasic/DevopsBasic.sln --configuration Release --no-restore'
             }
         }
 
         // 3️⃣ --- Run Backend Tests (.NET) ---
         stage('Test Backend (.NET)') {
             steps {
-                dir("${BACKEND_DIR}") {
-                    echo "Running .NET tests..."
-                    bat 'if not exist TestResults mkdir TestResults'
-                    bat 'dotnet test --configuration Release --no-build --logger "trx;LogFileName=testresults.trx" || exit /b 0'
+                echo "Running .NET tests..."
+                // Work from repo root, so relative paths to test project resolve correctly
+                bat 'if not exist TestResults mkdir TestResults'
+                bat 'dotnet test DevopsBasic/DevopsBasic.sln --configuration Release --no-build --logger "trx;LogFileName=testresults.trx" || exit /b 0'
 
-                    // Convert TRX → JUnit XML
-                    withEnv(["PATH=${DOTNET_TOOLS};${env.PATH}"]) {
-                        bat 'for /R %i in (*.trx) do trx2junit "%i"'
-                    }
+                // Convert TRX → JUnit XML for Jenkins reporting
+                withEnv(["PATH=${DOTNET_TOOLS};${env.PATH}"]) {
+                    bat 'for /R %i in (*.trx) do trx2junit "%i"'
                 }
             }
             post {
                 always {
                     // Publish test results to Jenkins
-                    junit allowEmptyResults: true, testResults: "${BACKEND_DIR}/**/testresults*.xml"
-                    archiveArtifacts artifacts: "${BACKEND_DIR}/**/TestResults/*.*", allowEmptyArchive: true
+                    junit allowEmptyResults: true, testResults: "TestResults/**/*.xml"
+                    archiveArtifacts artifacts: "TestResults/**/*.*", allowEmptyArchive: true
                 }
             }
         }
