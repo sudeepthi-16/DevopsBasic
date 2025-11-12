@@ -1,15 +1,13 @@
 pipeline {
   agent any
 
-  options {
-    timestamps()
-  }
+  options { timestamps() }
 
   environment {
-    BACKEND_DIR      = 'DevopsBasic'         // folder containing DevopsBasic.sln
-    TEST_PROJECT_DIR = 'DevopsBasic.Tests'   // folder containing test project(s)
+    BACKEND_DIR      = 'DevopsBasic'           // folder that contains DevopsBasic.sln
+    TEST_PROJECT_DIR = 'DevopsBasic.Tests'     // folder that contains DevopsBasic.Tests.csproj (sibling of BACKEND_DIR)
     FRONTEND_DIR     = 'students-ui'
-    TEST_RESULTS_DIR = 'TestResults'         // repo-root test results folder
+    TEST_RESULTS_DIR = 'TestResults'
     DOTNET_TOOLS_UNIX = "${env.HOME}/.dotnet/tools"
     DOTNET_TOOLS_WIN  = "%USERPROFILE%\\.dotnet\\tools"
     CONFIGURATION = "Release"
@@ -17,17 +15,20 @@ pipeline {
 
   stages {
 
-    stage('Checkout Code') {
+    stage('Checkout') {
       steps {
-        echo "Checking out repository..."
         checkout scm
         echo "Workspace: ${env.WORKSPACE}"
-        // Show workspace contents to debug path issues
+        // show workspace layout to help debug path mismatches
         script {
           if (isUnix()) {
             sh 'pwd; ls -la'
+            sh 'ls -la ${BACKEND_DIR} || true'
+            sh 'ls -la ${TEST_PROJECT_DIR} || true'
           } else {
             bat 'chdir & dir /a'
+            bat "if exist ${BACKEND_DIR} (echo Found ${BACKEND_DIR} & dir ${BACKEND_DIR}) else echo ${BACKEND_DIR} not found"
+            bat "if exist ${TEST_PROJECT_DIR} (echo Found ${TEST_PROJECT_DIR} & dir ${TEST_PROJECT_DIR}) else echo ${TEST_PROJECT_DIR} not found"
           }
         }
       }
@@ -35,13 +36,14 @@ pipeline {
 
     stage('Restore & Build (.NET)') {
       steps {
-        echo "Restoring and building .NET solution from ${BACKEND_DIR}..."
+        echo "Restoring & building solution from ${BACKEND_DIR}..."
         dir("${BACKEND_DIR}") {
           script {
             if (isUnix()) {
               sh "dotnet restore DevopsBasic.sln"
               sh "dotnet build DevopsBasic.sln -c ${CONFIGURATION} --no-restore"
             } else {
+              // Windows agent
               bat "dotnet restore DevopsBasic.sln"
               bat "dotnet build DevopsBasic.sln -c ${CONFIGURATION} --no-restore"
             }
@@ -52,16 +54,15 @@ pipeline {
 
     stage('Run Backend Tests (.NET)') {
       steps {
-        echo "Running backend tests in ${TEST_PROJECT_DIR} and saving TRX to ${TEST_RESULTS_DIR}..."
+        echo "Running backend tests (targeting actual test project file)..."
         script {
-          // ensure TestResults exists at repo root
+          // ensure a central TestResults folder at repo root
           if (isUnix()) {
             sh "mkdir -p ${TEST_RESULTS_DIR}"
-            // run tests from the test project folder (explicit)
-            dir("${TEST_PROJECT_DIR}") {
-              sh "dotnet test -c ${CONFIGURATION} --no-build --logger \"trx;LogFileName=backend.trx\" --results-directory ../${TEST_RESULTS_DIR} || true"
+            // run test by pointing directly at the test .csproj (the correct relative path from BACKEND_DIR)
+            dir("${BACKEND_DIR}") {
+              sh "dotnet test ../${TEST_PROJECT_DIR}/DevopsBasic.Tests.csproj -c ${CONFIGURATION} --no-build --logger \"trx;LogFileName=backend.trx\" --results-directory ../${TEST_RESULTS_DIR} || true"
             }
-            // install/convert TRX if trx2junit available
             sh '''
               dotnet tool install -g trx2junit || true
               export PATH="$PATH:${DOTNET_TOOLS_UNIX}"
@@ -71,15 +72,17 @@ pipeline {
             '''.stripIndent()
           } else {
             bat "if not exist ${TEST_RESULTS_DIR} mkdir ${TEST_RESULTS_DIR}"
-            dir("${TEST_PROJECT_DIR}") {
-              bat "dotnet test -c ${CONFIGURATION} --no-build --logger \"trx;LogFileName=backend.trx\" --results-directory ..\\${TEST_RESULTS_DIR} || exit /b 0"
+            dir("${BACKEND_DIR}") {
+              // From inside DevopsBasic, the test csproj is at ../DevopsBasic.Tests/DevopsBasic.Tests.csproj
+              bat "dotnet test ..\\${TEST_PROJECT_DIR}\\DevopsBasic.Tests.csproj -c ${CONFIGURATION} --no-build --logger \"trx;LogFileName=backend.trx\" --results-directory ..\\${TEST_RESULTS_DIR} || exit /b 0"
             }
+            // convert TRX -> JUnit using trx2junit (install if needed)
             bat """
-              dotnet tool install -g trx2junit || powershell -Command "Write-Host 'trx2junit maybe already installed'"
+              dotnet tool install -g trx2junit || powershell -Command "Write-Host 'trx2junit may already be installed'"
               set PATH=%PATH%;${DOTNET_TOOLS_WIN}
               for %%F in (${TEST_RESULTS_DIR}\\*.trx) do (
                 if exist "%%F" (
-                  ${DOTNET_TOOLS_WIN}\\trx2junit.exe "%%F" -o "%%~dpnF.xml" || echo convert failed for %%F
+                  ${DOTNET_TOOLS_WIN}\\trx2junit.exe "%%F" -o "${TEST_RESULTS_DIR}\\%%~nF.xml" || echo convert failed for %%F
                 )
               )
             """
@@ -88,6 +91,7 @@ pipeline {
       }
       post {
         always {
+          echo "Publishing backend test results and archiving TestResults/ ..."
           junit allowEmptyResults: true, testResults: "${TEST_RESULTS_DIR}/*.xml"
           archiveArtifacts artifacts: "${TEST_RESULTS_DIR}/**/*", allowEmptyArchive: true, fingerprint: true
         }
@@ -96,7 +100,7 @@ pipeline {
 
     stage('Build Frontend (Angular)') {
       steps {
-        echo "Building frontend in ${FRONTEND_DIR}..."
+        echo "Installing & building frontend in ${FRONTEND_DIR}..."
         dir("${FRONTEND_DIR}") {
           script {
             if (isUnix()) {
@@ -113,7 +117,7 @@ pipeline {
 
     stage('Run Frontend Tests (Angular)') {
       steps {
-        echo "Running frontend tests in ${FRONTEND_DIR}..."
+        echo "Running frontend tests (inside ${FRONTEND_DIR})..."
         dir("${FRONTEND_DIR}") {
           script {
             if (isUnix()) {
@@ -136,32 +140,26 @@ pipeline {
 
     stage('Build Docker Images (Optional)') {
       steps {
-        echo "Optional: building docker images via docker compose (if present)"
         script {
           if (fileExists('docker-compose.yml')) {
-            if (isUnix()) {
-              sh 'docker compose build || true'
-            } else {
-              bat 'docker compose build || exit /b 0'
-            }
+            echo "Running docker compose build..."
+            if (isUnix()) { sh 'docker compose build || true' } else { bat 'docker compose build || exit /b 0' }
           } else {
-            echo "No docker-compose.yml found; skipping docker build"
+            echo "No docker-compose.yml — skipping"
           }
         }
       }
     }
 
     stage('Summary') {
-      steps {
-        echo "Pipeline finished. Check Tests and Artifacts tabs."
-      }
+      steps { echo "Pipeline done — check Tests & Artifacts in Jenkins." }
     }
   }
 
   post {
-    success { echo "Pipeline succeeded ✅" }
-    unstable { echo "Pipeline unstable ⚠️" }
-    failure { echo "Pipeline failed ❌" }
-    always { echo "Done. Build status: ${currentBuild.currentResult}" }
+    success { echo "SUCCESS ✅" }
+    unstable { echo "UNSTABLE ⚠️" }
+    failure { echo "FAILED ❌" }
+    always { echo "Done. Status: ${currentBuild.currentResult}" }
   }
 }
