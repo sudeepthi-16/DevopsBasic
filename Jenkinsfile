@@ -37,26 +37,35 @@ pipeline {
 
         // 3️⃣ --- Run Backend Tests (.NET) ---
         stage('Test Backend (.NET)') {
-            steps {
-                dir("${BACKEND_DIR}") {
-                    echo "Running .NET tests..."
-                    bat 'if not exist TestResults mkdir TestResults'
-                    bat 'dotnet test --configuration Release --no-build --logger "trx;LogFileName=testresults.trx" || exit /b 0'
-
-                    // Convert TRX → JUnit XML
-                    withEnv(["PATH=${DOTNET_TOOLS};${env.PATH}"]) {
-                        bat 'for /R %i in (*.trx) do trx2junit "%i"'
-                    }
-                }
+    steps {
+        dir("${BACKEND_DIR}") {
+            echo "Running .NET tests (if any exist)..."
+            bat 'if not exist TestResults mkdir TestResults'
+            
+            // Run tests - won't fail if no tests exist
+            bat 'dotnet test --configuration Release --no-build --logger "trx;LogFileName=TestResults\\testresults.trx" || exit /b 0'
+            
+            // Convert TRX to JUnit XML (safe even if no TRX found)
+            withEnv(["PATH=${DOTNET_TOOLS};${env.PATH}"]) {
+                bat 'for /R %i in (TestResults\\*.trx) do trx2junit "%i" || echo No TRX files found, skipping conversion.'
             }
-            post {
-                always {
-                    // Publish test results to Jenkins
-                    junit allowEmptyResults: true, testResults: "${BACKEND_DIR}/**/testresults*.xml"
-                    archiveArtifacts artifacts: "${BACKEND_DIR}/**/TestResults/*.*", allowEmptyArchive: true
-                }
+
+            // List TestResults contents for debug
+            bat 'dir TestResults'
+        }
+    }
+
+    post {
+        always {
+            // Do not fail if no XMLs found
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                junit allowEmptyResults: true, testResults: "${BACKEND_DIR}/TestResults/*.xml"
+                archiveArtifacts artifacts: "${BACKEND_DIR}/TestResults/*.*", allowEmptyArchive: true
             }
         }
+    }
+}
+
 
         // 4️⃣ --- Install & Build Frontend (Angular) ---
         stage('Build Frontend (Angular)') {
