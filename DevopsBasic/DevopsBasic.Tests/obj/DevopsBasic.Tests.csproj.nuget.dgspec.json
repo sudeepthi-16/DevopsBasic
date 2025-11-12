@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj": {}
+    "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj": {
+    "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj",
+        "projectUniqueName": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj",
         "projectName": "DevopsBasic.Tests",
-        "projectPath": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj",
+        "projectPath": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj",
         "packagesPath": "C:\\Users\\sudee\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\obj\\",
+        "outputPath": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\DevopsBasic.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "H9h/csU/HCo=",
+  "dgSpecHash": "Toi46Pe67Ac=",
   "success": true,
-  "projectFilePath": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj",
+  "projectFilePath": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\DevopsBasic.Tests\\DevopsBasic.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\sudee\\.nuget\\packages\\coverlet.collector\\6.0.2\\coverlet.collector.6.0.2.nupkg.sha512",
     "C:\\Users\\sudee\\.nuget\\packages\\microsoft.codecoverage\\17.12.0\\microsoft.codecoverage.17.12.0.nupkg.sha512",
