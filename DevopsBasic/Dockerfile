@@ -7,10 +7,16 @@ WORKDIR /src
 # COPY . .
 # RUN dotnet restore
 
-COPY DevopsBasic/DevopsBasic.csproj ./DevopsBasic/
-RUN dotnet restore DevopsBasic/DevopsBasic.csproj
-COPY DevopsBasic/. ./DevopsBasic/
-RUN dotnet publish DevopsBasic/DevopsBasic.csproj ...
+#//
+COPY DevopsBasic.csproj ./
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy the rest of the source
+COPY . .
+
+#//
 
 RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
