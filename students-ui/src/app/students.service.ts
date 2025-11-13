@@ -17,3 +17,5 @@ export class StudentsService {
   update(s: Student): Observable<void> { return this.http.put<void>(`${this.base}/${s.id}`, s); }
   remove(id: number): Observable<void> { return this.http.delete<void>(`${this.base}/${id}`); }
 } 
+
+
