@@ -14,6 +14,26 @@ pipeline {
             }
         }
 
+        stage('Run Unit Tests') {
+    steps {
+        echo "Running .NET Unit Tests..."
+
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            bat """
+                cd DevopsBasic
+                dotnet restore
+                dotnet build --configuration Release
+                dotnet test --no-build --logger \"trx;LogFileName=test-results.trx\" --verbosity normal
+            """
+        }
+
+        junit allowEmptyResults: true, testResults: '**/test-results.trx'
+    }
+}
+
+
+        
+
         stage('Build Backend Docker Image') {
             steps {
                 bat """
