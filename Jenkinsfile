@@ -320,6 +320,7 @@ pipeline {
         }
         failure {
             echo "Deployment FAILED. Check logs."
+            
         }
     }
 }
