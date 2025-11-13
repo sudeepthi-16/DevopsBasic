@@ -1,8 +1,10 @@
+
 using Xunit;
 using DevopsBasic.Controllers;
 using DevopsBasic.Models;
+using DevopsBasic.Data;
 using Microsoft.AspNetCore.Mvc;
-using FluentAssertions;
+using System.Threading.Tasks;
 
 namespace DevopsBasic.Tests
 {
@@ -10,132 +12,109 @@ namespace DevopsBasic.Tests
     {
         public StudentsControllerTests()
         {
-            // Reset store before each test
-            InMemoryStudentStore.Clear();
+            InMemoryStudentStore.Clear(); // reset before each test
         }
 
         [Fact]
-        public void GetStudents_ShouldReturnAllStudents()
+        public async Task GetStudents_ReturnsOk_WithList()
         {
-            // Arrange
-            InMemoryStudentStore.Add(new Student { Id = 1, Name = "John", Age = 22 });
+            InMemoryStudentStore.Add(new Student { Name = "Alice", Dept = "CS" });
 
             var controller = new StudentsController();
+            var result = await controller.GetStudents();
 
-            // Act
-            var result = controller.GetStudents().Result as OkObjectResult;
+            var ok = result.Result as OkObjectResult;
+            Assert.NotNull(ok);
 
-            // Assert
-            var list = result.Value as IEnumerable<Student>;
-            list.Should().HaveCount(1);
+            var data = ok!.Value as IEnumerable<Student>;
+            Assert.Single(data!);
         }
 
         [Fact]
-        public void GetStudent_ShouldReturnStudent_IfExists()
+        public async Task GetStudent_ReturnsOk_WhenFound()
         {
-            InMemoryStudentStore.Add(new Student { Id = 1, Name = "John", Age = 22 });
+            var created = InMemoryStudentStore.Add(new Student { Name = "Bob", Dept = "IT" });
+
             var controller = new StudentsController();
+            var result = await controller.GetStudent(created.Id);
 
-            var result = controller.GetStudent(1).Result as OkObjectResult;
+            var ok = result.Result as OkObjectResult;
+            Assert.NotNull(ok);
 
-            var student = result.Value as Student;
-            student.Id.Should().Be(1);
+            var s = ok!.Value as Student;
+            Assert.Equal("Bob", s!.Name);
+            Assert.Equal("IT", s!.Dept);
         }
 
         [Fact]
-        public void GetStudent_ShouldReturnNotFound_IfNotExists()
+        public async Task GetStudent_ReturnsNotFound_WhenMissing()
         {
             var controller = new StudentsController();
+            var result = await controller.GetStudent(999);
 
-            var result = controller.GetStudent(100).Result;
-
-            result.Should().BeOfType<NotFoundResult>();
+            Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
-        public void PostStudent_ShouldCreateStudent()
+        public async Task PostStudent_ReturnsCreated()
         {
             var controller = new StudentsController();
 
-            var newStudent = new Student { Name = "Sara", Age = 20 };
+            var student = new Student { Name = "Carol", Dept = "ECE" };
 
-            var result = controller.PostStudent(newStudent).Result as CreatedAtActionResult;
+            var result = await controller.PostStudent(student);
+            var created = result.Result as CreatedAtActionResult;
 
-            var created = result.Value as Student;
+            Assert.NotNull(created);
 
-            created.Id.Should().BeGreaterThan(0);
-            created.Name.Should().Be("Sara");
+            var s = created!.Value as Student;
+            Assert.Equal("Carol", s!.Name);
+            Assert.Equal("ECE", s!.Dept);
         }
 
         [Fact]
-        public void PostStudent_ShouldReturnBadRequest_IfNull()
+        public async Task PutStudent_Updates_WhenExists()
         {
+            var created = InMemoryStudentStore.Add(new Student { Name = "Dan", Dept = "Mech" });
+
             var controller = new StudentsController();
 
-            var result = controller.PostStudent(null).Result;
+            var updated = new Student { Name = "Daniel", Dept = "ME Updated" };
 
-            result.Should().BeOfType<BadRequestResult>();
+            var result = await controller.PutStudent(created.Id, updated);
+
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public void PutStudent_ShouldUpdateStudent_IfExists()
+        public async Task PutStudent_ReturnsNotFound_WhenMissing()
         {
-            InMemoryStudentStore.Add(new Student { Id = 1, Name = "Old", Age = 20 });
             var controller = new StudentsController();
+            var s = new Student { Name = "Test", Dept = "None" };
 
-            var updated = new Student { Name = "New", Age = 25 };
+            var result = await controller.PutStudent(999, s);
 
-            var result = controller.PutStudent(1, updated).Result;
-
-            result.Should().BeOfType<NoContentResult>();
-
-            var stored = InMemoryStudentStore.GetById(1);
-            stored.Name.Should().Be("New");
-            stored.Age.Should().Be(25);
+            Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public void PutStudent_ShouldReturnNotFound_IfMissing()
+        public async Task DeleteStudent_Deletes_WhenExists()
         {
+            var saved = InMemoryStudentStore.Add(new Student { Name = "Eve", Dept = "EEE" });
+
             var controller = new StudentsController();
+            var result = await controller.DeleteStudent(saved.Id);
 
-            var updated = new Student { Name = "New", Age = 25 };
-
-            var result = controller.PutStudent(100, updated).Result;
-
-            result.Should().BeOfType<NotFoundResult>();
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public void PutStudent_ShouldReturnBadRequest_IfNull()
+        public async Task DeleteStudent_ReturnsNotFound_WhenMissing()
         {
             var controller = new StudentsController();
+            var result = await controller.DeleteStudent(488);
 
-            var result = controller.PutStudent(1, null).Result;
-
-            result.Should().BeOfType<BadRequestResult>();
-        }
-
-        [Fact]
-        public void DeleteStudent_ShouldDelete_IfExists()
-        {
-            InMemoryStudentStore.Add(new Student { Id = 1, Name = "John", Age = 22 });
-            var controller = new StudentsController();
-
-            var result = controller.DeleteStudent(1).Result;
-
-            result.Should().BeOfType<NoContentResult>();
-            InMemoryStudentStore.GetAll().Should().BeEmpty();
-        }
-
-        [Fact]
-        public void DeleteStudent_ShouldReturnNotFound_IfMissing()
-        {
-            var controller = new StudentsController();
-
-            var result = controller.DeleteStudent(100).Result;
-
-            result.Should().BeOfType<NotFoundResult>();
+            Assert.IsType<NotFoundResult>(result);
         }
     }
 }

@@ -1,0 +1,8 @@
+C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic.Tests\bin\Debug\net9.0\.msCoverageSourceRootsMapping_DevopsBasic.Tests
+C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic.Tests\bin\Debug\net9.0\CoverletSourceRootsMapping_DevopsBasic.Tests
+C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic.Tests\obj\Debug\net9.0\DevopsBasic.Tests.csproj.AssemblyReference.cache
+C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic.Tests\obj\Debug\net9.0\DevopsBasic.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic.Tests\obj\Debug\net9.0\DevopsBasic.Tests.AssemblyInfoInputs.cache
+C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic.Tests\obj\Debug\net9.0\DevopsBasic.Tests.AssemblyInfo.cs
+C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic.Tests\obj\Debug\net9.0\DevopsBasic.Tests.csproj.CoreCompileInputs.cache
+C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic.Tests\obj\Debug\net9.0\DevopsBasic.Tests.sourcelink.json
