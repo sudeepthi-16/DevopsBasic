@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|c:\\users\\sudee\\onedrive\\desktop\\devopsbasic\\devopsbasic\\devopsbasic.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|solutionrelative:devopsbasic.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|c:\\users\\sudee\\onedrive\\desktop\\devopsbasic\\devopsbasic\\data\\inmemorystudentstore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|solutionrelative:data\\inmemorystudentstore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -23,10 +27,6 @@
       "RelativeMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|c:\\users\\sudee\\onedrive\\desktop\\devopsbasic\\devopsbasic\\devopsbasic.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|solutionrelative:devopsbasic.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|c:\\users\\sudee\\onedrive\\desktop\\devopsbasic\\devopsbasic\\middleware\\requestloggingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5EF70F59-F02D-409A-A452-FC5DF1ED3C08}|DevopsBasic.csproj|solutionrelative:middleware\\requestloggingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -42,11 +42,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "InMemoryStudentStore.cs",
               "DocumentMoniker": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\Data\\InMemoryStudentStore.cs",
               "RelativeDocumentMoniker": "Data\\InMemoryStudentStore.cs",
@@ -59,7 +59,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Student.cs",
               "DocumentMoniker": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\Models\\Student.cs",
               "RelativeDocumentMoniker": "Models\\Student.cs",
@@ -67,12 +67,11 @@
               "RelativeToolTip": "Models\\Student.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-08T15:51:18.649Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-08T15:51:18.649Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -80,12 +79,11 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAAQAAAAAAAAAAAAkwBoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-08T16:15:52.924Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-08T16:15:52.924Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "StudentsController.cs",
               "DocumentMoniker": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\Controllers\\StudentsController.cs",
               "RelativeDocumentMoniker": "Controllers\\StudentsController.cs",
@@ -93,12 +91,11 @@
               "RelativeToolTip": "Controllers\\StudentsController.cs",
               "ViewState": "AgIAACUAAAAAAAAAAIAwwAEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-08T16:51:53.121Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-08T16:51:53.121Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
@@ -110,7 +107,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 0,
               "Title": "DevopsBasic.csproj",
               "DocumentMoniker": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic\\DevopsBasic.csproj",
               "RelativeDocumentMoniker": "DevopsBasic.csproj",
@@ -118,7 +115,8 @@
               "RelativeToolTip": "DevopsBasic.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-11-08T15:53:34.225Z"
+              "WhenOpened": "2025-11-08T15:53:34.225Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
