@@ -287,33 +287,27 @@ pipeline {
 
         stage('Build Backend Docker Image') {
             steps {
-                script {
-                    sh """
-                        docker build -t ${BACKEND_IMAGE}:latest ./DevopsBasic
-                    """
-                }
+                bat """
+                    docker build -t %BACKEND_IMAGE%:latest ./DevopsBasic
+                """
             }
         }
 
         stage('Build Frontend Docker Image') {
             steps {
-                script {
-                    sh """
-                        docker build -t ${FRONTEND_IMAGE}:latest ./students-ui
-                    """
-                }
+                bat """
+                    docker build -t %FRONTEND_IMAGE%:latest ./students-ui
+                """
             }
         }
 
         stage('Deploy using Docker Compose') {
             steps {
-                script {
-                    sh """
-                        docker-compose down --remove-orphans
-                        docker-compose build
-                        docker-compose up -d
-                    """
-                }
+                bat """
+                    docker-compose down --remove-orphans
+                    docker-compose build
+                    docker-compose up -d
+                """
             }
         }
     }
@@ -321,11 +315,11 @@ pipeline {
     post {
         success {
             echo "Deployment SUCCESSFUL!"
-            echo "Frontend running at: http://localhost:8080"
-            echo "Backend running at: http://localhost:5000"
+            echo "Frontend: http://localhost:8080"
+            echo "Backend:  http://localhost:5000"
         }
         failure {
-            echo "Deployment FAILED. Check console logs."
+            echo "Deployment FAILED. Check logs."
         }
     }
 }
