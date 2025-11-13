@@ -80,3 +80,9 @@ public static class InMemoryStudentStore
     private static Student Clone(Student s) =>
         new Student { Id = s.Id, Name = s.Name, Dept = s.Dept, Marks = s.Marks };
 }
+
+public static void Clear()
+{
+    _students.Clear();
+    _nextId = 1;
+}
