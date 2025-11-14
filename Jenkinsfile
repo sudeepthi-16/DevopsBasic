@@ -22,14 +22,16 @@ pipeline {
             bat """
                 cd DevopsBasic.Tests
                 dotnet restore
-                dotnet build --configuration Release
-                dotnet test --no-build --logger \"trx;LogFileName=test-results.trx\" --results-directory TestResults
+                dotnet build --configuration Debug
+                dotnet test --logger \"trx;LogFileName=test-results.trx\" --results-directory TestResults
             """
         }
 
+        // Publish test results even if empty
         junit allowEmptyResults: true, testResults: 'DevopsBasic.Tests/TestResults/*.trx'
     }
 }
+
 
 
 
