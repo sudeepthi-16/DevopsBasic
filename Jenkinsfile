@@ -20,16 +20,17 @@ pipeline {
 
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             bat """
-                cd DevopsBasic
+                cd DevopsBasic.Tests
                 dotnet restore
                 dotnet build --configuration Release
-                dotnet test --no-build --logger \"trx;LogFileName=test-results.trx\" --verbosity normal
+                dotnet test --no-build --logger \"trx;LogFileName=test-results.trx\" --results-directory TestResults
             """
         }
 
-        junit allowEmptyResults: true, testResults: '**/test-results.trx'
+        junit allowEmptyResults: true, testResults: 'DevopsBasic.Tests/TestResults/*.trx'
     }
 }
+
 
 
 
