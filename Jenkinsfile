@@ -14,55 +14,30 @@ pipeline {
             }
         }
 
-//         stage('Run Unit Tests') {
-//     steps {
-//         echo "Running .NET Unit Tests..."
-
-//         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-
-//             bat """
-//                 cd DevopsBasic.Tests
-
-//                 dotnet restore
-//                 dotnet build --configuration Debug
-
-//                 REM Run tests and generate TRX report
-//                 dotnet test --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
-
-//                 REM Convert TRX -> JUnit XML using trx2junit
-//                 trx2junit TestResults\\test-results.trx TestResults\\
-//             """
-//         }
-
-//         // Publish JUnit XML results so Jenkins shows test reports
-//         junit allowEmptyResults: true, testResults: 'DevopsBasic.Tests/TestResults/*.xml'
-//     }
-// }
-stage('Run Unit Tests') {
+        stage('Run Unit Tests') {
     steps {
         echo "Running .NET Unit Tests..."
 
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
 
             bat """
-                REM Add dotnet global tools to PATH
-                set PATH=%PATH%;C:\\Users\\sudee\\.dotnet\\tools
-
                 cd DevopsBasic.Tests
 
                 dotnet restore
                 dotnet build --configuration Debug
 
-                dotnet test --no-build --logger \"trx;LogFileName=test-results.trx\" --results-directory TestResults
+                REM Run tests and generate TRX report
+                dotnet test --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
 
+                REM Convert TRX -> JUnit XML using trx2junit
                 trx2junit TestResults\\test-results.trx TestResults\\
             """
         }
 
+        // Publish JUnit XML results so Jenkins shows test reports
         junit allowEmptyResults: true, testResults: 'DevopsBasic.Tests/TestResults/*.xml'
     }
 }
-
      
 
         stage('Build Backend Docker Image') {
