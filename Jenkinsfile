@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE = "devopsbasic-backend
+        BACKEND_IMAGE = "devopsbasic-backend"
         FRONTEND_IMAGE = "devopsbasic-frontend"
     }
 
