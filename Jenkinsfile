@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE = "devopsbasic-backend"
-        FRONTEND_IMAGE = "devopsbasic-frontend"
+        BACKEND_IMAGE = "devopsbasic-backendjenkins"
+        FRONTEND_IMAGE = "devopsbasic-frontendjenkins"
     }
 
     stages {
