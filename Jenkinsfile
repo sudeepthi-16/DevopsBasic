@@ -30,10 +30,6 @@ pipeline {
     }
 }
 
-        // Publish JUnit XML results so Jenkins shows test reports
-        junit allowEmptyResults: true, testResults: 'DevopsBasic.Tests/TestResults/*.xml'
-    }
-}
      
 
         stage('Build Backend Docker Image') {
