@@ -45,7 +45,7 @@ services:
 
   web:
     build: ./students-ui
-    container_name: devopsbasic-webjenkins
+    container_name: devopsbasic-web
     depends_on:
       - api
     ports:
