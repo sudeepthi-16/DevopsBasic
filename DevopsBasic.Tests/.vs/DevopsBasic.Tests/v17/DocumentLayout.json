@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E50F9E39-A27D-D340-8652-323A1CE4A188}|DevopsBasic.Tests.csproj|c:\\users\\sudee\\onedrive\\desktop\\devopsbasic\\devopsbasic.tests\\studentscontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E50F9E39-A27D-D340-8652-323A1CE4A188}|DevopsBasic.Tests.csproj|solutionrelative:studentscontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "StudentsControllerTests.cs",
+              "DocumentMoniker": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\StudentsControllerTests.cs",
+              "RelativeDocumentMoniker": "StudentsControllerTests.cs",
+              "ToolTip": "C:\\Users\\sudee\\OneDrive\\Desktop\\DevopsBasic\\DevopsBasic.Tests\\StudentsControllerTests.cs",
+              "RelativeToolTip": "StudentsControllerTests.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-27T05:20:13.345Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

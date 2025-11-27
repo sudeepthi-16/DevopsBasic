@@ -1,3 +1,33 @@
+# version: "3.9"
+
+# services:
+#   api:
+#     build: ./DevopsBasic
+#     container_name: devopsbasic-api
+#     environment:
+#       - ASPNETCORE_ENVIRONMENT=Development
+#       - ConnectionStrings__Default=Server=ASUS-SUDEEPTHI\SQLEXPRESS\;Database=StudentDB;Trusted_Connection=True;TrustServerCertificate=True;
+
+
+#     ports:
+#       - "5000:5000"
+#     networks:
+#       - devopsbasic-net
+
+#   web:
+#     build: ./students-ui
+#     container_name: devopsbasic-web
+#     depends_on:
+#       - api
+#     ports:
+#       - "8080:80"
+#     networks:
+#       - devopsbasic-net
+
+# networks:
+#   devopsbasic-net:
+#     driver: bridge
+
 version: "3.9"
 
 services:
@@ -7,12 +37,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Default=Server=ASUS-SUDEEPTHI\SQLEXPRESS\;Database=StudentDB;Trusted_Connection=True;TrustServerCertificate=True;
-
-
     ports:
       - "5000:5000"
     networks:
       - devopsbasic-net
+      - monitoring-net
 
   web:
     build: ./students-ui
@@ -24,21 +53,47 @@ services:
     networks:
       - devopsbasic-net
 
+  # -------------------------
+  # PROMETHEUS
+  # -------------------------
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring-net
+
+  # -------------------------
+  # GRAFANA
+  # -------------------------
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - monitoring-net
+
+# -------------------------
+# NETWORKS
+# -------------------------
 networks:
   devopsbasic-net:
     driver: bridge
+  monitoring-net:
+    driver: bridge
 
-# services:
-#   api:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     ports:
-#       - "5000:8080"
-
-#   web:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile.web
-#     ports:
-#       - "4200:80"
+# -------------------------
+# VOLUMES
+# -------------------------
+volumes:
+  grafana_data:

@@ -1,0 +1,14 @@
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']
+
+  - job_name: 'api'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['api:5000']
+
+  - job_name: 'jenkins'
+    metrics_path: /prometheus
+    static_configs:
+      - targets: ['172.20.192.1:8081']

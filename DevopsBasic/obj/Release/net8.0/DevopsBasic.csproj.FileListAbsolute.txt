@@ -1,9 +1,0 @@
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\DevopsBasic.csproj.AssemblyReference.cache
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\rpswa.dswa.cache.json
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\DevopsBasic.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\DevopsBasic.AssemblyInfoInputs.cache
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\DevopsBasic.AssemblyInfo.cs
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\DevopsBasic.csproj.CoreCompileInputs.cache
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\DevopsBasic.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\DevopsBasic.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\sudee\OneDrive\Desktop\DevopsBasic\DevopsBasic\obj\Release\net8.0\DevopsBasic.sourcelink.json

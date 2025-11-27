@@ -1,3 +1,4 @@
+using Prometheus;
 using DevopsBasic.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,10 +19,23 @@ builder.Services.AddCors(opt =>
 
 var app = builder.Build();
 
+
+
+// Expose /metrics endpoint automatically
+app.UseMetricServer();     // <-- exposes http://localhost:5000/metrics
+app.UseHttpMetrics();      // <-- collects HTTP request metrics
+
+
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors("dev");
+
+
+
+
+
+
 app.MapControllers();
 
 app.Run();
