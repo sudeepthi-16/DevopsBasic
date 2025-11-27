@@ -18,21 +18,17 @@ pipeline {
     steps {
         echo "Running .NET Unit Tests..."
 
-        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+        bat """
+            cd DevopsBasic.Tests
 
-            bat """
-                cd DevopsBasic.Tests
+            dotnet restore
+            dotnet build --configuration Debug
 
-                dotnet restore
-                dotnet build --configuration Debug
-
-                REM Run tests and generate TRX report
-                dotnet test --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
-
-                REM Convert TRX -> JUnit XML using trx2junit
-                trx2junit TestResults\\test-results.trx TestResults\\
-            """
-        }
+            REM Run tests normally (no TRX, no XML)
+            dotnet test --no-build
+        """
+    }
+}
 
         // Publish JUnit XML results so Jenkins shows test reports
         junit allowEmptyResults: true, testResults: 'DevopsBasic.Tests/TestResults/*.xml'
